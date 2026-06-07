@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light theme (default) */
+:root {
+  --bg: 255 255 255;
+  --surface: 248 250 252;
+  --card: 255 255 255;
+  --border: 226 232 240;
+  --fg: 15 23 42;
+  --muted: 100 116 139;
+}
+
+/* Dark theme — applied when <html class="dark"> (next-themes) */
+.dark {
+  --bg: 13 17 23;
+  --surface: 22 27 34;
+  --card: 22 27 34;
+  --border: 48 54 61;
+  --fg: 230 237 243;
+  --muted: 139 148 158;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  @apply bg-bg text-fg antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Rendered blog content (TipTap HTML) */
+.prose-content { line-height: 1.75; color: rgb(var(--fg)); }
+.prose-content h2 { font-size: 1.5rem; font-weight: 700; margin: 1.75rem 0 0.75rem; }
+.prose-content h3 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+.prose-content p { margin: 0.85rem 0; }
+.prose-content ul { list-style: disc; padding-left: 1.5rem; margin: 0.85rem 0; }
+.prose-content ol { list-style: decimal; padding-left: 1.5rem; margin: 0.85rem 0; }
+.prose-content li { margin: 0.35rem 0; }
+.prose-content a { color: #3fb950; text-decoration: underline; }
+.prose-content blockquote { border-left: 3px solid rgb(var(--border)); padding-left: 1rem; color: rgb(var(--muted)); margin: 1rem 0; }
+.prose-content strong { font-weight: 700; }
+.prose-content code { background: rgb(var(--surface)); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.875em; }

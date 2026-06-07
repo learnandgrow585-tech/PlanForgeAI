@@ -1,0 +1,7 @@
+{
+  "name": "@planforge/config",
+  "version": "0.1.0",
+  "private": true,
+  "files": ["tsconfig.base.json", "eslint-preset.js"],
+  "main": "eslint-preset.js"
+}

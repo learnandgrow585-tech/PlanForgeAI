@@ -1,0 +1,73 @@
+# PlanForge AI — Complete Local Dev Stack
+# docker-compose -f infra/docker-compose.yml up -d  →  everything starts
+# Cost: $0
+version: '3.9'
+
+services:
+  # ── DATABASE ──────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: planforge-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: planforge
+      POSTGRES_USER: planforge
+      POSTGRES_PASSWORD: devpassword123
+    ports: ["5432:5432"]
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U planforge"]
+      interval: 10s
+      retries: 5
+
+  # ── CACHE + QUEUE ─────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: planforge-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports: ["6379:6379"]
+    volumes: [redis_data:/data]
+
+  # ── FILE STORAGE (S3-compatible) ──────────────
+  minio:
+    image: minio/minio:latest
+    container_name: planforge-storage
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: planforge
+      MINIO_ROOT_PASSWORD: devpassword123
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [minio_data:/data]
+
+  # ── EMAIL — catches all emails (no real sends) ─
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: planforge-mail
+    ports: ["1025:1025", "8025:8025"]
+
+  # ── METRICS ───────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: planforge-prometheus
+    ports: ["9090:9090"]
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+
+  # ── DASHBOARDS ────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: planforge-grafana
+    ports: ["3001:3000"]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes: [grafana_data:/var/lib/grafana]
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:

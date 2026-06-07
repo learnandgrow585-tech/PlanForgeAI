@@ -1,0 +1,201 @@
+// PlanForge AI — Prisma schema
+generator client {
+  provider      = "prisma-client-js"
+  // native = local dev (Windows); debian = Render/most cloud Linux hosts
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum SubscriptionTier {
+  FREE
+  PREMIUM
+  PRO
+  ENTERPRISE
+}
+
+enum PlanStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum PlannerCategory {
+  WEALTH
+  GOAL
+  CAREER
+  FITNESS
+  STARTUP
+  RETIREMENT
+  EDUCATION
+  VEHICLE
+  HOUSE_CONSTRUCTION
+  ENGINEERING
+  TRAVEL
+  RELATIONSHIP
+  PRODUCTIVITY
+  OTHER
+}
+
+model User {
+  id               String           @id @default(cuid())
+  email            String           @unique
+  passwordHash     String
+  name             String?
+  role             Role             @default(USER)
+  subscriptionTier SubscriptionTier @default(FREE)
+  isActive         Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  lastLoginAt      DateTime?
+
+  plans     Plan[]
+  auditLogs AuditLog[]
+  blogPosts BlogPost[]
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model BlogPost {
+  id             String     @id @default(cuid())
+  slug           String     @unique
+  title          String
+  excerpt        String
+  content        String // HTML from the TipTap editor
+  category       String
+  tags           String[]   @default([])
+  coverImage     String?
+  status         PostStatus @default(DRAFT)
+  seoTitle       String?
+  seoDescription String?
+  authorId       String?
+  publishedAt    DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  author User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([status, publishedAt])
+  @@index([category])
+}
+
+model Planner {
+  id                   String          @id @default(cuid())
+  slug                 String          @unique
+  name                 String
+  category             PlannerCategory
+  description          String
+  inputSchema          Json
+  systemPromptTemplate String
+  icon                 String          @default("Sparkles")
+  isActive             Boolean         @default(true)
+  order                Int             @default(0)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  plans Plan[]
+}
+
+model Plan {
+  id        String     @id @default(cuid())
+  userId    String
+  plannerId String
+  title     String
+  status    PlanStatus @default(DRAFT)
+  planData  Json
+  inputData Json? // the planner form answers, kept so generation can be retried
+  version   Int        @default(1)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planner    Planner        @relation(fields: [plannerId], references: [id])
+  milestones Milestone[]
+  revisions  PlanRevision[]
+
+  @@index([userId])
+  @@index([plannerId])
+}
+
+model Milestone {
+  id          String          @id @default(cuid())
+  planId      String
+  title       String
+  description String?
+  targetDate  DateTime?
+  completedAt DateTime?
+  order       Int             @default(0)
+  status      MilestoneStatus @default(PENDING)
+
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+}
+
+model PlanRevision {
+  id           String   @id @default(cuid())
+  planId       String
+  note         String
+  previousData Json
+  newData      Json
+  version      Int
+  createdAt    DateTime @default(now())
+
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId])
+}
+
+model KnowledgeResource {
+  id        String   @id @default(cuid())
+  planId    String?
+  type      String // VIDEO | ARTICLE
+  title     String
+  url       String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([planId])
+}
+
+model PromptTemplate {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  version   Int      @default(1)
+  body      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  target    String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+}

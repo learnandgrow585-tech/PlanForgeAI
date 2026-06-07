@@ -1,0 +1,31 @@
+{
+  "name": "planforge-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PlanForge AI — AI-powered Planning Operating System (zero-cost dev stack)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "db:migrate": "npm run db:migrate --workspace=@planforge/api",
+    "db:seed": "npm run db:seed --workspace=@planforge/api",
+    "db:studio": "npm run db:studio --workspace=@planforge/api",
+    "infra:up": "docker-compose -f infra/docker-compose.yml up -d",
+    "infra:down": "docker-compose -f infra/docker-compose.yml down"
+  },
+  "devDependencies": {
+    "turbo": "^2.1.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@10.0.0"
+}

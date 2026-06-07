@@ -1,0 +1,15 @@
+node_modules/
+.turbo/
+dist/
+.next/
+out/
+coverage/
+*.log
+.env
+.env.local
+.env.prod
+# Local machine-specific helper scripts (contain local paths/dev secrets)
+start-api.ps1
+start-web.ps1
+.DS_Store
+apps/api/prisma/*.db
