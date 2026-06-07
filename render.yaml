@@ -31,12 +31,13 @@ services:
         value: gemini-2.5-flash
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
-      # ── secrets: set these in the Render dashboard ──
-      - key: DATABASE_URL
-        sync: false
+      # auto-generated secure secrets (no need to enter these)
       - key: JWT_ACCESS_SECRET
-        sync: false
+        generateValue: true
       - key: JWT_REFRESH_SECRET
+        generateValue: true
+      # ── secrets: enter these in the Render dashboard ──
+      - key: DATABASE_URL
         sync: false
       - key: GEMINI_API_KEY
         sync: false
@@ -47,8 +48,4 @@ services:
       - key: GOOGLE_SEARCH_CX
         sync: false
       - key: WEB_ORIGIN
-        sync: false
-      - key: SUPER_ADMIN_EMAIL
-        sync: false
-      - key: SUPER_ADMIN_PASSWORD
         sync: false
