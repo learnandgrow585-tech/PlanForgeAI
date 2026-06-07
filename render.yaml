@@ -6,7 +6,7 @@ services:
     name: planforge-api
     runtime: node
     plan: free
-    region: oregon
+    region: singapore
     rootDir: .
     buildCommand: >-
       npm install &&
